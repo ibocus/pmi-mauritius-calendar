@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,6 +50,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
           Proposal built for PMI Mauritius Chapter members. Not an official PMI, Inc. publication.
         </footer>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
