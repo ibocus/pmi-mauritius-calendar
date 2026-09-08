@@ -5,6 +5,19 @@ workshops and events in advance, with the PDU value of each event so members
 can plan their certification renewal, and a form so members can shape next
 year's calendar with their own suggestions.
 
+## Live links
+
+| What | Where |
+| --- | --- |
+| Live site | https://pmi-mauritius-calendar.vercel.app |
+| Member suggestions (GitHub issues, label `member-suggestion`) | https://github.com/ibocus/pmi-mauritius-calendar/issues |
+| Visitor analytics (page views, visitors, referrers) | https://vercel.com/ibocus-projects/pmi-mauritius-calendar/analytics |
+| Speed Insights (Core Web Vitals) | https://vercel.com/ibocus-projects/pmi-mauritius-calendar/speed-insights |
+| Vercel project (deployments, env vars, settings) | https://vercel.com/ibocus-projects/pmi-mauritius-calendar |
+
+Every push to `master` on GitHub auto-deploys to production via the
+Vercel ↔ GitHub integration — no manual deploy step needed.
+
 ## What's here
 
 - **`/`** — the yearly calendar (currently a sample year defined in
@@ -29,17 +42,21 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Configuring the suggestion form
 
 The `/api/suggestions` route files a GitHub issue for each submission. It
-needs a token with `Issues: write` access on this repo:
-
-1. Create a fine-grained GitHub PAT scoped to this repo with the **Issues**
-   permission set to **Read and write**.
-2. Set it as `GITHUB_TOKEN` in your deployment environment (e.g. Vercel
-   project → Settings → Environment Variables).
+needs a token with `Issues: write` access on this repo, set as `GITHUB_TOKEN`
+in the Vercel project's environment variables (Settings → Environment
+Variables) — **this is already configured on the live deployment.**
 
 Without `GITHUB_TOKEN` set, the form returns a clear "not configured yet"
-error instead of failing silently.
+error instead of failing silently, so if suggestions stop working, check
+there first (e.g. the PAT expired — fine-grained tokens have an expiry date
+set at creation).
+
+To rotate the token: create a new fine-grained PAT scoped to this repo with
+**Issues: Read and write**, then replace the `GITHUB_TOKEN` value in Vercel
+and redeploy (`vercel deploy --prod`) so the new value takes effect.
 
 ## Deploying
 
-Deploy on [Vercel](https://vercel.com/new) — import this repo, add the
-`GITHUB_TOKEN` environment variable, and deploy.
+Already deployed and linked — see [Live links](#live-links) above. To deploy
+manually: `npx vercel deploy --prod` from the project root (requires being
+logged into the `ibocus` Vercel account via `vercel login`).
