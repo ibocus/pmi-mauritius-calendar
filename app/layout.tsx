@@ -43,6 +43,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/suggest" className="hover:text-blue-600 dark:hover:text-blue-400">
                 Suggest a workshop
               </Link>
+              <Link href="/membership-card" className="hover:text-blue-600 dark:hover:text-blue-400">
+                Membership card
+              </Link>
             </nav>
           </div>
         </header>
