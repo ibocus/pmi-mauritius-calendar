@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 
-export function WalletButtons() {
+interface WalletButtonsProps {
+  name: string;
+  memberId: string;
+}
+
+export function WalletButtons({ name, memberId }: WalletButtonsProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -10,7 +15,8 @@ export function WalletButtons() {
     setStatus("loading");
     setError(null);
     try {
-      const res = await fetch("/api/wallet/google");
+      const params = new URLSearchParams({ name, memberId });
+      const res = await fetch(`/api/wallet/google?${params.toString()}`);
       const body = await res.json();
       if (!res.ok || !body.saveUrl) {
         throw new Error(body.error ?? "Google Wallet isn't connected yet.");

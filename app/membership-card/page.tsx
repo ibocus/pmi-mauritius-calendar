@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { MembershipCard } from "@/components/MembershipCard";
-import { WalletButtons } from "@/components/WalletButtons";
+import { MembershipCardForm } from "@/components/MembershipCardForm";
 
 export const metadata: Metadata = {
   title: "Digital membership card — PMI Mauritius Chapter",
@@ -24,22 +23,8 @@ export default function MembershipCardPage() {
         commits to building it for real.
       </p>
 
-      <div className="mt-10 flex flex-col items-center gap-6 sm:items-start">
-        <MembershipCard
-          name="Sample Member"
-          memberId="PMI-MU-000000"
-          memberSince="2024"
-          validThru="Dec 2027"
-        />
-
-        <div>
-          <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
-            Try it — the Google Wallet button is wired up for real, the Apple
-            Wallet button is a placeholder until the chapter has an Apple
-            Developer account.
-          </p>
-          <WalletButtons />
-        </div>
+      <div className="mt-10">
+        <MembershipCardForm />
       </div>
 
       <div className="mt-10 rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
