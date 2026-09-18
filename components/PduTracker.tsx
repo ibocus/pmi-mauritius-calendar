@@ -1,7 +1,12 @@
-import { CCR_CYCLE_TARGET, pdusByArea, totalPdus } from "@/lib/events";
+import { CCR_CYCLE_TARGET, TalentTriangleArea } from "@/lib/events";
 import { AreaBadge } from "./AreaBadge";
 
-export function PduTracker() {
+interface PduTrackerProps {
+  totalPdus: number;
+  pdusByArea: Record<TalentTriangleArea, number>;
+}
+
+export function PduTracker({ totalPdus, pdusByArea }: PduTrackerProps) {
   const pct = Math.min(100, Math.round((totalPdus / CCR_CYCLE_TARGET) * 100));
 
   return (
@@ -35,7 +40,7 @@ export function PduTracker() {
             key={area}
             className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/60"
           >
-            <AreaBadge area={area as keyof typeof pdusByArea} />
+            <AreaBadge area={area as TalentTriangleArea} />
             <span className="text-sm font-semibold">{pdus} PDU</span>
           </div>
         ))}

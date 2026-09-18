@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { EventCard } from "@/components/EventCard";
 import { PduTracker } from "@/components/PduTracker";
-import { events, YEAR } from "@/lib/events";
+import { calendarYear, getEvents, pdusByArea, totalPdus } from "@/lib/events";
 
-export default function Home() {
+export default async function Home() {
+  const events = await getEvents();
+  const YEAR = calendarYear(events);
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       <section className="mb-10">
@@ -61,7 +64,7 @@ export default function Home() {
       </section>
 
       <section className="mb-10">
-        <PduTracker />
+        <PduTracker totalPdus={totalPdus(events)} pdusByArea={pdusByArea(events)} />
       </section>
 
       <section id="calendar" className="scroll-mt-20">

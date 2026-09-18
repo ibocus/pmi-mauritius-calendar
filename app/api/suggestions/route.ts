@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabase } from "@/lib/supabase";
 
 const GITHUB_REPO = process.env.SUGGESTIONS_REPO ?? "ibocus/pmi-mauritius-calendar";
 
@@ -16,6 +17,37 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+async function fileGithubIssue(body: SuggestionPayload) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return;
+
+  const lines = [
+    `**Topic:** ${body.topic.trim()}`,
+    body.area && `**Talent Triangle area:** ${body.area}`,
+    body.format && `**Preferred format:** ${body.format}`,
+    body.month && `**Preferred month:** ${body.month}`,
+    body.comments && `**Comments:** ${body.comments.trim()}`,
+    "---",
+    body.name ? `Submitted by: ${body.name.trim()}` : "Submitted anonymously",
+    body.email && `Contact: ${body.email.trim()}`,
+  ].filter(Boolean);
+
+  await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    body: JSON.stringify({
+      title: `Suggestion: ${body.topic.trim()}`,
+      body: lines.join("\n\n"),
+      labels: ["member-suggestion"],
+    }),
+  }).catch(() => {});
+}
+
 export async function POST(request: NextRequest) {
   let body: SuggestionPayload;
   try {
@@ -28,49 +60,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "A workshop topic is required." }, { status: 400 });
   }
 
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    return NextResponse.json(
-      { error: "Suggestions are not configured yet. Set GITHUB_TOKEN in the deployment environment." },
-      { status: 503 }
-    );
-  }
-
-  const title = `Suggestion: ${body.topic.trim()}`;
-  const lines = [
-    `**Topic:** ${body.topic.trim()}`,
-    body.area && `**Talent Triangle area:** ${body.area}`,
-    body.format && `**Preferred format:** ${body.format}`,
-    body.month && `**Preferred month:** ${body.month}`,
-    body.comments && `**Comments:** ${body.comments.trim()}`,
-    "---",
-    body.name ? `Submitted by: ${body.name.trim()}` : "Submitted anonymously",
-    body.email && `Contact: ${body.email.trim()}`,
-  ].filter(Boolean);
-
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    body: JSON.stringify({
-      title,
-      body: lines.join("\n\n"),
-      labels: ["member-suggestion"],
-    }),
+  const { error } = await getSupabase().from("pmi_suggestions").insert({
+    topic: body.topic.trim(),
+    area: body.area || null,
+    format: body.format || null,
+    month: body.month || null,
+    name: body.name?.trim() || null,
+    email: body.email?.trim() || null,
+    comments: body.comments?.trim() || null,
   });
 
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
+  if (error) {
     return NextResponse.json(
-      { error: "Could not submit the suggestion right now. Please try again later.", detail },
+      { error: "Could not submit the suggestion right now. Please try again later." },
       { status: 502 }
     );
   }
 
-  const issue = await res.json();
-  return NextResponse.json({ ok: true, url: issue.html_url }, { status: 201 });
+  await fileGithubIssue(body);
+
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
